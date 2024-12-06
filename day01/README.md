@@ -35,7 +35,7 @@ ORDER BY name ASC
 limit 5;
 ```
 
-## Improvment
+## Improvement
 
 The original color counting first convert the jsonvalue into string, split it with `string_to_array` function, then count it with `array_length` function.
 
