@@ -89,9 +89,9 @@ ORDER BY
 
 ## Improvements
 
-After a bit of reasearching, [ElaWajdzik's solution](https://github.com/ElaWajdzik/Advent-of-SQL-2024/blob/main/day_04.sql) have a better approach.
+After a bit of research, [ElaWajdzik's solutions](https://github.com/ElaWajdzik/Advent-of-SQL-2024/blob/main/day_04.sql) have better performance.
 
-First improvment can be made by generating the tags array difference in a single subquery with the help of `ARRAY` function.
+First improvment can be made by generating the tags difference array in a single subquery with the help of `ARRAY` function. This reduced the execution time by roughly 20%.
 
 ```sql
 WITH tag_changes_analysis AS (
@@ -117,7 +117,7 @@ WITH tag_changes_analysis AS (
 )
 ```
 
-A more advanced approach is defining a custom function to handle the array difference.
+A more advanced approach is defining a custom function to handle the array difference. This reduced the execution time by roughly 50%.
 
 ```sql
 CREATE OR REPLACE FUNCTION array_difference(array1 TEXT[], array2 TEXT[])
