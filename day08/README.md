@@ -3,18 +3,39 @@
 ## My Attempt
 
 ```sql
-WITH RECURSIVE staff_tree (staff_id, staff_name, manager_id, staff_level) AS (
-	SELECT staff_id, staff_name, manager_id, 1 AS staff_level
-	FROM staff
-	WHERE manager_id IS NULL
-	UNION ALL 
-	SELECT s.staff_id, s.staff_name, s.manager_id, staff_level + 1
-	FROM staff s, staff_tree subordinate
-	WHERE s.manager_id  = subordinate.staff_id
+WITH RECURSIVE staff_tree (
+	staff_id,
+	staff_name,
+	manager_id,
+	staff_level
+) AS (
+	SELECT
+		staff_id,
+		staff_name,
+		manager_id,
+		1 AS staff_level
+	FROM
+		staff
+	WHERE
+		manager_id IS NULL
+UNION ALL
+	SELECT
+		s.staff_id,
+		s.staff_name,
+		s.manager_id,
+		staff_level + 1
+	FROM
+		staff s,
+		staff_tree subordinate
+	WHERE
+		s.manager_id = subordinate.staff_id
 )
-SELECT * 
-FROM staff_tree st
-ORDER BY staff_level DESC 
+SELECT
+	*
+FROM
+	staff_tree st
+ORDER BY
+	staff_level DESC
 ```
 
 ## Note
@@ -38,3 +59,58 @@ WITH RECURSIVE cte_name AS (
 One point is that the anchor clause must be defined first, and the result of the recursive clause is gradually built up through each iteration. So the base result given by the anchor clause can affect the performance.
 
 For instance, if remove the `WHERE manager_id IS NULL` condition from the anchor clause, the query will return duplicate rows (10x the number of rows in the table) and 2.5x~3x slower.
+
+
+## Improvement
+
+What if we want to show a hierarchy of the staff?
+
+A sort key can be formed by chaining the staff_id together, and then sort the result by the sort key.
+
+```sql
+WITH RECURSIVE staff_tree (
+	INDENT,
+	staff_id,
+	staff_name,
+	manager_id,
+	staff_level,
+	sort_key
+) AS (
+	SELECT
+		'' AS INDENT,
+		staff_id,
+		staff_name,
+		manager_id,
+		1 AS staff_level,
+		COALESCE(
+			manager_id::TEXT || '-',
+			''
+		) || staff_id::TEXT
+	FROM
+		staff
+	WHERE
+		manager_id IS NULL
+UNION ALL
+	SELECT
+		INDENT || '--- ',
+		s.staff_id,
+		s.staff_name,
+		s.manager_id,
+		staff_level + 1,
+		sort_key || '-' || s.staff_id::TEXT
+	FROM
+		staff s,
+		staff_tree subordinate
+	WHERE
+		s.manager_id = subordinate.staff_id
+)
+SELECT
+	INDENT || staff_name AS staff_name,
+	staff_id ,
+	manager_id,
+	staff_level
+FROM
+	staff_tree st
+ORDER BY
+	sort_key
+```
