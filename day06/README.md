@@ -31,8 +31,8 @@ WITH result_all AS (
 		AVG(g.price) OVER() AS avg_price --average price of delivered gifts
 	FROM children ch
 	LEFT JOIN gifts g
-	ON g.child_id = ch.child_id)
-
+	ON g.child_id = ch.child_id
+)
 SELECT 
 	*
 FROM result_all
