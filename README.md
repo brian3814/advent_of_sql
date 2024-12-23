@@ -1,5 +1,7 @@
 # Advent of SQL Challange
 
+Calender: [https://adventofsql.com/](https://adventofsql.com/)
+
 ## Docker setup
 
 ```
